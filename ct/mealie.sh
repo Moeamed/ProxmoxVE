@@ -8,7 +8,7 @@ source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxV
 APP="Mealie"
 var_tags="${var_tags:-recipes}"
 var_cpu="${var_cpu:-2}"
-var_ram="${var_ram:-3072}"
+var_ram="${var_ram:-4096}"
 var_disk="${var_disk:-10}"
 var_os="${var_os:-debian}"
 var_version="${var_version:-13}"
@@ -52,20 +52,11 @@ function update_script() {
     $STD sed -i "s|https://github.com/mealie-recipes/mealie/commit/|https://github.com/mealie-recipes/mealie/releases/tag/|g" /opt/mealie/frontend/pages/admin/site-settings.vue
     $STD sed -i "s|value: data.buildId,|value: \"v${MEALIE_VERSION}\",|g" /opt/mealie/frontend/pages/admin/site-settings.vue
     $STD sed -i "s|value: data.production ? i18n.t(\"about.production\") : i18n.t(\"about.development\"),|value: \"bare-metal\",|g" /opt/mealie/frontend/pages/admin/site-settings.vue
-    export NUXT_TELEMETRY_DISABLED=1
-    export NODE_OPTIONS="--dns-result-order=ipv4first"
-    cd /opt/mealie/frontend
-
-    msg_info "Disabling @nuxt/fonts to avoid fonts.gstatic.com during build"
-
-    NUXT_CFG="$(ls -1 /opt/mealie/frontend/nuxt.config.* 2>/dev/null | head -n 1)"
-    if [[ -n "$NUXT_CFG" ]]; then
-      # Retire @nuxt/fonts du tableau "modules: []" (gère quotes simples/doubles + virgule)
-      sed -i -E "s/(['\"])@nuxt\/fonts\1,?[[:space:]]*//g" "$NUXT_CFG"
-    fi
     
-    msg_ok "Nuxt fonts disabled"
-
+    export NODE_OPTIONS="--max-old-space-size=4096"
+    export YARN_NETWORK_TIMEOUT=1000000
+    export NUXT_TELEMETRY_DISABLED=1
+    cd /opt/mealie/frontend
     $STD yarn install --prefer-offline --frozen-lockfile --non-interactive --production=false --network-timeout 1000000
     $STD yarn generate
     msg_ok "Built Frontend"
@@ -109,4 +100,3 @@ msg_ok "Completed successfully!\n"
 echo -e "${CREATING}${GN}${APP} setup has been successfully initialized!${CL}"
 echo -e "${INFO}${YW} Access it using the following URL:${CL}"
 echo -e "${TAB}${GATEWAY}${BGN}http://${IP}:9000${CL}"
-
