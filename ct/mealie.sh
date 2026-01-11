@@ -55,6 +55,17 @@ function update_script() {
     export NUXT_TELEMETRY_DISABLED=1
     export NODE_OPTIONS="--dns-result-order=ipv4first"
     cd /opt/mealie/frontend
+
+    msg_info "Disabling @nuxt/fonts to avoid fonts.gstatic.com during build"
+
+    NUXT_CFG="$(ls -1 /opt/mealie/frontend/nuxt.config.* 2>/dev/null | head -n 1)"
+    if [[ -n "$NUXT_CFG" ]]; then
+      # Retire @nuxt/fonts du tableau "modules: []" (gère quotes simples/doubles + virgule)
+      sed -i -E "s/(['\"])@nuxt\/fonts\1,?[[:space:]]*//g" "$NUXT_CFG"
+    fi
+    
+    msg_ok "Nuxt fonts disabled"
+
     $STD yarn install --prefer-offline --frozen-lockfile --non-interactive --production=false --network-timeout 1000000
     $STD yarn generate
     msg_ok "Built Frontend"
