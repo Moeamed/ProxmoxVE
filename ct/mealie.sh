@@ -53,6 +53,7 @@ function update_script() {
     $STD sed -i "s|value: data.buildId,|value: \"v${MEALIE_VERSION}\",|g" /opt/mealie/frontend/pages/admin/site-settings.vue
     $STD sed -i "s|value: data.production ? i18n.t(\"about.production\") : i18n.t(\"about.development\"),|value: \"bare-metal\",|g" /opt/mealie/frontend/pages/admin/site-settings.vue
     export NUXT_TELEMETRY_DISABLED=1
+    export NODE_OPTIONS="--dns-result-order=ipv4first"
     cd /opt/mealie/frontend
     $STD yarn install --prefer-offline --frozen-lockfile --non-interactive --production=false --network-timeout 1000000
     $STD yarn generate
