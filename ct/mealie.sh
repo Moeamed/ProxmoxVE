@@ -13,7 +13,7 @@ var_disk="${var_disk:-10}"
 var_os="${var_os:-debian}"
 var_version="${var_version:-13}"
 var_unprivileged="${var_unprivileged:-1}"
-var_verbose="${var_verbose:1}"
+var_verbose="${var_verbose:-1}"
 
 header_info "$APP"
 variables
@@ -55,7 +55,7 @@ function update_script() {
     $STD sed -i "s|value: data.production ? i18n.t(\"about.production\") : i18n.t(\"about.development\"),|value: \"bare-metal\",|g" /opt/mealie/frontend/pages/admin/site-settings.vue
     
     export NODE_OPTIONS="--max-old-space-size=4096"
-    export YARN_NETWORK_TIMEOUT=1000000
+    export YARN_NETWORK_TIMEOUT=2000000
     export NUXT_TELEMETRY_DISABLED=1
     cd /opt/mealie/frontend
     $STD yarn install --prefer-offline --frozen-lockfile --non-interactive --production=false --network-timeout 1000000
